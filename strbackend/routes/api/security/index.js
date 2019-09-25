@@ -1,18 +1,41 @@
+var fileModel = require('../filemodel');
 var express = require('express');
-var router= express.Router();
+var router = express.Router();
 
-router.get('/', function(req, res){
-    res.json({
-        "entity":"security",
-        "version": "0.0.1"
-    });
-}); //get
 
 var secCollection = [];
 
+fileModel.loadFromFileSecurity(
+  function(err, savedCollection)
+  {
+      if(err)
+      {
+          return;
+      }
+      secCollection = savedCollection;
+      return;
+  }
+);
+
+
+router.get('/', function (req, res) {
+  res.json({
+    "entity": "security",
+    "version": "0.0.1"
+  });
+}); //get
+
+/** 
+ * get      Consultas     select
+ * post     Crear         insert
+ * put      Actualizar    update
+ * delete   Eliminar      delete
+*/
+
 router.get('/all', function(req, res){
-    res.json(secCollection);
-});
+  res.json(secCollection);
+}); // get /all
+
 
 router.post('/new', function(req, res)
 {
@@ -27,7 +50,20 @@ router.post('/new', function(req, res)
     if(!securityExists)
     {
         secCollection.push(newSecurity);
-        res.json(newSecurity);
+        fileModel.saveToFileSecurity(
+            secCollection,
+            function(err, saveSuccesfully){
+                if(err)
+                {
+                    res.status(400).json({"error": "No se pudo ingresar objeto"});
+                }
+                else
+                {
+                    res.json(newSecurity);   
+                }
+            }
+            );
+
     }
     else
     {
@@ -38,4 +74,18 @@ router.post('/new', function(req, res)
     //res.json(newProduct);
 });
 
-module.exports= router;
+router.put('/update/:secsku',
+function(req, res)
+{
+    var secskuToModify = req.params.secsku;
+    console.log(secskuToModify);
+    res.json({"msg": "Not implemented yet"});
+});
+// post /new
+
+// endPoint ==  ejeutar operacion| obtenerRecurso| guardarrecurso 
+//              | > devuelve un recurso
+
+// router  get| post | put | delete
+
+module.exports = router;
