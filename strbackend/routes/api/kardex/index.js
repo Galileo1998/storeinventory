@@ -36,51 +36,41 @@ router.get('/all', function(req, res){
   res.json(krdCollection);
 }); // get /all
 
-
-router.post('/new', function(req, res)
+function enviar(req, res)
 {
-    var newKardex = Object.assign({}, req.body);
-    var kardexExists = krdCollection.find(    
-            function(o, i){
-                return o.sku === newKardex.sku;
-            }
-    )
-    
-
-    if(!kardexExists)
-    {
+    router.post('/new', function(){
+        var newKardex = Object.assign(
+        {},
+        req.body,
+        {
+            "stock": parseInt(req.body.stock),
+            "price": parseFloat(req.body.price)
+        }
+        );
+        var kardexExists = krdCollection.find(
+        function(o, i){
+            return o.sku === newKardex.sku;
+        }
+        )
+        if( ! kardexExists ){
         krdCollection.push(newKardex);
         fileModel.saveToFileKardex(
             krdCollection,
-            function(err, saveSuccesfully){
-                if(err)
-                {
-                    res.status(400).json({"error": "No se pudo ingresar objeto"});
-                }
-                else
-                {
-                    res.json(newKardex);   
-                }
+            function(err, savedSuccesfully){
+            if(err)
+            {
+                res.status(400).json({ "error": "No se pudo ingresar objeto" });
+            } else
+            {
+                res.json(newKardex);  // req.body ===  $_POST[]    
             }
-            );
-
-    }
-    else
-    {
-        res.status(400).json({"error": "No se pudo ingresar objeto"});
-    }
-
-    //prodCollection.push(newProduct);
-    //res.json(newProduct);
-});
-
-router.put('/update/:krdsku',
-function(req, res)
-{
-    var krdskuToModify = req.params.krdsku;
-    console.log(krdskuToModify);
-    res.json({"msg": "Not implemented yet"});
-});
+            }
+        );
+        } else {
+        res.status(400).json({"error":"No se pudo ingresar objeto"});
+        }
+    }); // post /new
+}
 // post /new
 
 // endPoint ==  ejeutar operacion| obtenerRecurso| guardarrecurso 
