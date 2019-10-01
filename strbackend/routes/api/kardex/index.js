@@ -36,8 +36,7 @@ router.get('/all', function(req, res){
   res.json(krdCollection);
 }); // get /all
 
-function enviar(req, res)
-{
+ 
     router.post('/new', function(){
         var newKardex = Object.assign(
         {},
